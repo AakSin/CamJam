@@ -107,19 +107,24 @@ class DrummerCam extends Cam {
   playSound(xValue) {
     if (xValue < (this.width / 4) * 1) {
       hihat.play();
+      this.p5l.send(JSON.stringify("hihat"));
     } else if (xValue < (this.width / 4) * 2) {
       snare.play();
+      this.p5l.send(JSON.stringify("snare"));
     } else if (xValue < (this.width / 4) * 3) {
       kick.play();
+      this.p5l.send(JSON.stringify("kick"));
     } else if (xValue < (this.width / 4) * 4) {
       crash.play();
+      this.p5l.send(JSON.stringify("crash"));
     }
   }
 }
 
 class PianistCam extends Cam {
-  constructor(video) {
+  constructor(video, p5l) {
     super(video);
+    this.p5l = p5l;
     this.height = height;
     this.width = (width * 2) / 3;
     this.video.size(this.height, this.width);
@@ -159,29 +164,36 @@ class PianistCam extends Cam {
       this.predictions[0].landmarks[8][1] > this.predictions[0].landmarks[6][1]
     ) {
       c4.play();
+
+      // Send it
+      this.p5l.send(JSON.stringify("piano1"));
     }
     if (
       this.predictions[0].landmarks[12][1] >
       this.predictions[0].landmarks[10][1]
     ) {
       e4.play();
+      this.p5l.send(JSON.stringify("piano2"));
     }
     if (
       this.predictions[0].landmarks[16][1] >
       this.predictions[0].landmarks[14][1]
     ) {
       g4.play();
+      this.p5l.send(JSON.stringify("piano3"));
     }
     if (
       this.predictions[0].landmarks[20][1] >
       this.predictions[0].landmarks[18][1]
     ) {
       b5.play();
+      this.p5l.send(JSON.stringify("piano4"));
     }
     if (
       this.predictions[0].landmarks[4][0] < this.predictions[0].landmarks[2][0]
     ) {
       d5.play();
+      this.p5l.send(JSON.stringify("piano5"));
     }
   }
 }
