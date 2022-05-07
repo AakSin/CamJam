@@ -3,6 +3,10 @@
 let myVideo;
 let p5l;
 
+let drumLabels = ["crash", "kick", "snare", "hihat"];
+let pianistCamClient;
+let drummerCamClient;
+let guitaristCamClient;
 // Open this sketch up 2 times to send video back and forth
 window.addEventListener("load", () => {
   const changeButton = document.querySelector("#change");
@@ -11,11 +15,26 @@ window.addEventListener("load", () => {
       'input[name="instrument"]:checked'
     ).value;
     if (instrument == "piano") {
-      videoStreams[0] = new PianistCam(myVideo);
+      if (pianistCamClient) {
+        videoStreams[0] = pianistCamClient;
+      } else {
+        pianistCamClient = new PianistCam(myVideo);
+        videoStreams[0] = pianistCamClient;
+      }
     } else if (instrument == "guitar") {
-      videoStreams[0] = new GuitaristCam(myVideo);
+      if (guitaristCamClient) {
+        videoStreams[0] = guitaristCamClient;
+      } else {
+        guitaristCamClient = new GuitaristCam(myVideo);
+        videoStreams[0] = guitaristCamClient;
+      }
     } else if (instrument == "drums") {
-      videoStreams[0] = new DrummerCam(myVideo);
+      if (drummerCamClient) {
+        videoStreams[0] = drummerCamClient;
+      } else {
+        drummerCamClient = new DrummerCam(myVideo);
+        videoStreams[0] = drummerCamClient;
+      }
     }
     videoStreams[0].p5l = p5l;
   });
@@ -27,6 +46,7 @@ roomCode = roomCode.substring(1, roomCode.length - 1);
 let p5lset = false;
 let videoStreams = [];
 let crash, hihat, snare, kick;
+let monkey;
 function preload() {
   crash = loadSound("assets/crash.wav");
   kick = loadSound("assets/kick.wav");
@@ -41,8 +61,18 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(window.innerWidth, window.innerHeight);
+  createCanvas(window.innerWidth, 0.95 * window.innerHeight);
+  pixelDensity(1);
 
+  // let constraints = {
+  //   video: {
+  //     mandatory: {
+  //       minWidth: (width * 2) / 3,
+  //       minHeight: height,
+  //     },
+  //   },
+  //   audio: false,
+  // };
   myVideo = createCapture(VIDEO, function (stream) {
     p5l = new p5LiveMedia(this, "CAPTURE", stream, roomCode);
     p5l.on("stream", gotStream);
@@ -54,15 +84,21 @@ function setup() {
   // });
   myVideo.muted = true;
   myVideo.hide();
+  // myVideo.size((window.innerWidth * 2) / 3, window.innerHeight);
   if (myVideo != null) {
-    videoStreams.push(new PianistCam(myVideo));
+    pianistCamClient = new PianistCam(myVideo);
+
+    videoStreams.push(pianistCamClient);
     document.querySelector('input[value="piano"]').checked = true;
   }
 }
 
 function draw() {
   background("white");
-  // videoStreams[0].draw(0, 0);
+  // rect(0, 0, myVideo.width, myVideo.height);
+
+  // image(myVideo, 0, 0);
+
   for (let i = videoStreams.length - 1; i >= 1; i--) {
     videoStreams[i].draw((width * 2) / 3, ((i - 1) * height) / 3);
     // videoStreams[i].draw();
@@ -73,6 +109,23 @@ function draw() {
     videoStreams[0].p5l = p5l;
     if (videoStreams[0].p5l) {
       p5lset = true;
+    }
+  }
+  if (videoStreams[0] instanceof DrummerCam) {
+    let rectHeight =
+      videoStreams[0].video.height * videoStreams[0].heightMultiplier;
+    let rectWidth =
+      videoStreams[0].video.width * videoStreams[0].widthMultiplier;
+    print(rectHeight, rectWidth);
+
+    for (let i = 0; i < 4; i++) {
+      stroke("white");
+      fill(i * 50, 100, 100, 100);
+
+      rect((i * rectWidth) / 4, 0, rectWidth / 4, rectHeight);
+      noStroke();
+      fill("white");
+      text(drumLabels[i], (i * rectWidth) / 4 + rectWidth / 10, rectHeight / 2);
     }
   }
   // videoStreams[0].move();
