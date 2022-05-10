@@ -1,9 +1,10 @@
 class Cam {
-  constructor(video) {
+  constructor(video, socketId) {
+    this.socketId = socketId;
     this.video = video;
     this.width = width / 3;
     this.height = height / 3;
-
+    this.instrumentName = "";
     // this.x = random(0, width - this.width);
     // this.x = x;
     // this.y = random(0, height - this.height);

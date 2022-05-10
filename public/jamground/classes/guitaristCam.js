@@ -51,7 +51,7 @@ class GuitaristCam extends Cam {
 
         ellipse(this.newNose.x, this.newNose.y, 10, 10);
         // console.log(this.newNose.y - this.oldNose.y);
-        if (this.newNose.y - this.oldNose.y > 10) {
+        if (this.newNose.y - this.oldNose.y > 5) {
           this.oldPlayFrame = this.newPlayFrame;
           this.newPlayFrame = frameCount;
           if (this.newPlayFrame - this.oldPlayFrame > 15) {
@@ -88,30 +88,30 @@ class GuitaristCam extends Cam {
     if (
       this.predictions[0].landmarks[8][1] > this.predictions[0].landmarks[6][1]
     ) {
-      c4.play();
+      guitar1.play();
     }
     if (
       this.predictions[0].landmarks[12][1] >
       this.predictions[0].landmarks[10][1]
     ) {
-      e4.play();
+      guitar2.play();
     }
     if (
       this.predictions[0].landmarks[16][1] >
       this.predictions[0].landmarks[14][1]
     ) {
-      g4.play();
+      guitar3.play();
     }
     if (
       this.predictions[0].landmarks[20][1] >
       this.predictions[0].landmarks[18][1]
     ) {
-      b5.play();
+      guitar4.play();
     }
     if (
       this.predictions[0].landmarks[4][0] < this.predictions[0].landmarks[2][0]
     ) {
-      d5.play();
+      guitar5.play();
     }
   }
 }

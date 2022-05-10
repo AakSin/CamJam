@@ -80,7 +80,11 @@ class p5LiveMedia {
     this.onDataCallback;
     this.onDisconnectCallback;
 
-    this.socket = io();
+    if (!host) {
+      this.socket = io.connect("https://p5livemedia.itp.io/");
+    } else {
+      this.socket = io.connect(host);
+    }
 
     //console.log(elem.elt);
 
@@ -104,6 +108,7 @@ class p5LiveMedia {
       } else {
         this.socket.emit("room_connect", room);
       }
+      this.socket.emit("instrumentInfo", "Pianist");
     });
 
     this.socket.on("disconnect", (data) => {
@@ -208,6 +213,8 @@ class p5LiveMedia {
       this.onData(callback);
     } else if (event == "disconnect") {
       this.onDisconnect(callback);
+    } else if (event == "instrumentList") {
+      this.onInstrumentList(callback);
     }
   }
 
@@ -222,10 +229,18 @@ class p5LiveMedia {
   onData(callback) {
     this.onDataCallback = callback;
   }
+  onInstrumentList(callback) {
+    this.onInstrumentListCallback = callback;
+  }
 
   callOnDisconnectCallback(id) {
     if (this.onDisconnectCallback) {
       this.onDisconnectCallback(id);
+    }
+  }
+  callOnInstrumentListCallback(data) {
+    if (this.onInstrumentListCallback) {
+      this.onInstrumentListCallback(data);
     }
   }
 
@@ -300,6 +315,9 @@ class SimplePeerWrapper {
     // simplepeer generates signals which need to be sent across socket
     this.simplepeer.on("signal", (data) => {
       this.socket.emit("signal", this.socket_id, this.socket.id, data);
+    });
+    this.simplepeer.on("instrumentList", (data) => {
+      this.p5livemedia.callOnInstrumentListCallback(data);
     });
 
     // When we have a connection, send our stream

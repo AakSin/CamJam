@@ -15,13 +15,6 @@ app.use(
   })
 );
 
-// initialize database
-let Datastore = require("nedb");
-let db = new Datastore({
-  filename: "rooms.db",
-}); //creates a new one if needed
-db.loadDatabase(); //loads the db with the data
-
 const maxPlayers = 4;
 
 // Tell Express to look in the "public" folder for any files first
@@ -65,55 +58,16 @@ instrument(io, {
   auth: false,
 });
 
-let testRoom = {
-  roomCode: "test",
-  currentUsers: 0,
-  playersInfo: {},
-};
-
-db.insert(testRoom, function (err, newDoc) {
-  // Callback is optional
-  // newDoc is the newly inserted document, including its _id
-  // newDoc has no key called notToBeSaved since its value was undefined
-});
 let rooms = {};
+
 // Register a callback function to run when we have an individual connection
 // This is run for each individual user that connects
 io.sockets.on("connection", (socket) => {
   console.log("We have a new client", socket.id);
-  socket.on("createRoom", (roomCode) => {
-    db.findOne({ roomCode: roomCode }, function (err, doc) {
-      console.log(doc);
-      if (doc == null) {
-        let newRoom = {
-          roomCode: roomCode,
-          currentUsers: 1,
-          playersInfo: {
-            [socket.id]: "pianist",
-          },
-        };
-        db.insert(newRoom, function (err, newDoc) {
-          // Callback is optional
-          // newDoc is the newly inserted document, including its _id
-          console.log(newDoc);
-          // newDoc has no key called notToBeSaved since its value was undefined
-        });
-        io.to(socket.id).emit("roomCreated", roomCode);
-      } else {
-        io.to(socket.id).emit("roomCreated", roomCode);
-      }
-    });
-  });
 
   socket.on("room_connect", function (room) {
     console.log(Date.now(), socket.id, room, "room_connect");
-    db.findOne({ roomCode: room }, function (err, doc) {
-      console.log(doc);
-      if (doc == null) {
-        console.log("aaaaaaaaa");
-        socket.emit("invalidRoom");
-      }
-    });
+
     if (!rooms.hasOwnProperty(room)) {
       console.log(Date.now(), socket.id, "room doesn't exist, creating it");
       rooms[room] = [];
@@ -158,7 +112,23 @@ io.sockets.on("connection", (socket) => {
     // 	console.log("never found peer");
     // }
   });
+  socket.on("instrumentInfo", (data) => {
+    if (rooms[socket.room]) {
+      // Check on this
+      // Tell everyone first
+      instrumentTracker = {};
 
+      for (let i = 0; i < rooms[socket.room].length; i++) {
+        if (rooms[socket.room][i].id == socket.id) {
+          rooms[socket.room][i].instrumentInfo = data;
+        }
+        instrumentTracker[rooms[socket.room][i].id] =
+          rooms[socket.room][i].instrumentInfo;
+      }
+    }
+
+    io.sockets.emit("instrumentList", instrumentTracker);
+  });
   socket.on("disconnect", function () {
     console.log(Date.now(), socket.id, "Client has disconnected");
     if (rooms[socket.room]) {

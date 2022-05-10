@@ -1,12 +1,14 @@
 // This is a test of the p5LiveMedia webrtc library and associated service.
-
+let font;
 let myVideo;
 let p5l;
-
+let clientId;
+// let instrumentList;
 let drumLabels = ["crash", "kick", "snare", "hihat"];
 let pianistCamClient;
 let drummerCamClient;
 let guitaristCamClient;
+
 // Open this sketch up 2 times to send video back and forth
 window.addEventListener("load", () => {
   const changeButton = document.querySelector("#change");
@@ -15,24 +17,29 @@ window.addEventListener("load", () => {
       'input[name="instrument"]:checked'
     ).value;
     if (instrument == "piano") {
+      p5l.socket.emit("instrumentInfo", "Pianist");
       if (pianistCamClient) {
         videoStreams[0] = pianistCamClient;
       } else {
-        pianistCamClient = new PianistCam(myVideo);
+        pianistCamClient = new PianistCam(myVideo, clientId);
         videoStreams[0] = pianistCamClient;
       }
     } else if (instrument == "guitar") {
+      p5l.socket.emit("instrumentInfo", "Guitarist");
+
       if (guitaristCamClient) {
         videoStreams[0] = guitaristCamClient;
       } else {
-        guitaristCamClient = new GuitaristCam(myVideo);
+        guitaristCamClient = new GuitaristCam(myVideo, clientId);
         videoStreams[0] = guitaristCamClient;
       }
     } else if (instrument == "drums") {
+      p5l.socket.emit("instrumentInfo", "Drummer");
+
       if (drummerCamClient) {
         videoStreams[0] = drummerCamClient;
       } else {
-        drummerCamClient = new DrummerCam(myVideo);
+        drummerCamClient = new DrummerCam(myVideo, clientId);
         videoStreams[0] = drummerCamClient;
       }
     }
@@ -46,7 +53,7 @@ roomCode = roomCode.substring(1, roomCode.length - 1);
 let p5lset = false;
 let videoStreams = [];
 let crash, hihat, snare, kick;
-let monkey;
+
 function preload() {
   crash = loadSound("assets/crash.wav");
   kick = loadSound("assets/kick.wav");
@@ -58,11 +65,18 @@ function preload() {
   g4 = loadSound("assets/g4.mp3");
   b5 = loadSound("assets/b5.mp3");
   d5 = loadSound("assets/d5.mp3");
+
+  guitar1 = loadSound("assets/guitar1.m4a");
+  guitar2 = loadSound("assets/guitar2.m4a");
+  guitar3 = loadSound("assets/guitar3.m4a");
+  guitar4 = loadSound("assets/guitar4.m4a");
+  guitar5 = loadSound("assets/guitar5.m4a");
+  font = loadFont("assets/raleway.ttf");
 }
 
 function setup() {
   createCanvas(window.innerWidth, 0.95 * window.innerHeight);
-  pixelDensity(1);
+  // pixelDensity(1);
 
   // let constraints = {
   //   video: {
@@ -74,9 +88,33 @@ function setup() {
   //   audio: false,
   // };
   myVideo = createCapture(VIDEO, function (stream) {
-    p5l = new p5LiveMedia(this, "CAPTURE", stream, roomCode);
+    print(window.location.hostname);
+    p5l = new p5LiveMedia(
+      this,
+      "CAPTURE",
+      stream,
+      roomCode,
+      window.location.hostname
+    );
+
     p5l.on("stream", gotStream);
     p5l.on("data", gotData);
+    p5l.on("disconnect", gotDisconnect);
+    p5l.socket.on("instrumentList", (data) => {
+      // print(data);
+      instrumentList = data;
+      print(instrumentList);
+
+      print(videoStreams.length);
+      for (let i = 1; i < videoStreams.length; i++) {
+        for (socketId in instrumentList) {
+          // print(socketId);
+          if (socketId == videoStreams[i].socketId) {
+            videoStreams[i].instrumentName = instrumentList[socketId];
+          }
+        }
+      }
+    });
   });
 
   // p5l.socket.on("invalidRoom", () => {
@@ -86,7 +124,7 @@ function setup() {
   myVideo.hide();
   // myVideo.size((window.innerWidth * 2) / 3, window.innerHeight);
   if (myVideo != null) {
-    pianistCamClient = new PianistCam(myVideo);
+    pianistCamClient = new PianistCam(myVideo, "temp");
 
     videoStreams.push(pianistCamClient);
     document.querySelector('input[value="piano"]').checked = true;
@@ -98,25 +136,43 @@ function draw() {
   // rect(0, 0, myVideo.width, myVideo.height);
 
   // image(myVideo, 0, 0);
-
-  for (let i = videoStreams.length - 1; i >= 1; i--) {
+  // print(videoStreams);
+  for (let i = 1; i < videoStreams.length; i++) {
     videoStreams[i].draw((width * 2) / 3, ((i - 1) * height) / 3);
+    textFont(font);
+    let textBox = font.textBounds(videoStreams[i].instrumentName, 0, 0, 20);
+    fill("black");
+    rect(
+      (width * 2) / 3,
+      ((i - 1) * height) / 3 + videoStreams[i].height - textBox.h - 10,
+      textBox.w + 10,
+      textBox.h + 10
+    );
+    fill("white");
+    textSize(20);
+    text(
+      videoStreams[i].instrumentName,
+      (width * 2) / 3,
+      ((i - 1) * height) / 3 + videoStreams[i].height - 5
+    );
     // videoStreams[i].draw();
     // videoStreams[i].move();
   }
+
   videoStreams[0].draw(0, 0);
   if (!p5lset) {
     videoStreams[0].p5l = p5l;
     if (videoStreams[0].p5l) {
+      clientId = p5l.socket.id;
+      videoStreams[0].socketId = clientId;
       p5lset = true;
     }
   }
-  if (videoStreams[0] instanceof DrummerCam) {
+  if (getInstrumentName(videoStreams[0]) == "Drummer") {
     let rectHeight =
       videoStreams[0].video.height * videoStreams[0].heightMultiplier;
     let rectWidth =
       videoStreams[0].video.width * videoStreams[0].widthMultiplier;
-    print(rectHeight, rectWidth);
 
     for (let i = 0; i < 4; i++) {
       stroke("white");
@@ -135,7 +191,15 @@ function draw() {
 function gotStream(stream, id) {
   // This is just like a video/stream from createCapture(VIDEO)
   stream.hide();
-  videoStreams.push(new Cam(stream));
+  videoStreams.push(new Cam(stream, id));
+  for (let i = 1; i < videoStreams.length; i++) {
+    for (socketId in instrumentList) {
+      // print(socketId);
+      if (socketId == videoStreams[i].socketId) {
+        videoStreams[i].instrumentName = instrumentList[socketId];
+      }
+    }
+  }
 }
 function gotData(data, id) {
   print(id + ":" + data);
@@ -169,5 +233,26 @@ function gotData(data, id) {
   }
   if (d == "snare") {
     snare.play();
+  }
+}
+function gotDisconnect(id) {
+  for (let i = 1; i < videoStreams.length; i++) {
+    if (videoStreams[i].socketId == id) {
+      videoStreams.splice(i, 1);
+      break;
+    }
+  }
+}
+
+function gotInstrumentList(data) {
+  console.log(data);
+}
+function getInstrumentName(instrumentVar) {
+  if (instrumentVar instanceof DrummerCam) {
+    return "Drummer";
+  } else if (instrumentVar instanceof PianistCam) {
+    return "Pianist";
+  } else if (instrumentVar instanceof GuitaristCam) {
+    return "Guitarist";
   }
 }
