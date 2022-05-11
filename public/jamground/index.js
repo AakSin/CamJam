@@ -14,52 +14,54 @@ let bassistCamClient;
 
 // Open this sketch up 2 times to send video back and forth
 window.addEventListener("load", () => {
-  const changeButton = document.querySelector("#change");
-  changeButton.addEventListener("click", () => {
-    instrument = document.querySelector(
-      'input[name="instrument"]:checked'
-    ).value;
-    console.log(
-      document.querySelector('input[name="instrument"]:checked').value
-    );
-    if (instrument == "piano") {
-      p5l.socket.emit("instrumentInfo", "Pianist");
-      if (pianistCamClient) {
-        videoStreams[0] = pianistCamClient;
-      } else {
-        pianistCamClient = new PianistCam(myVideo, clientId);
-        videoStreams[0] = pianistCamClient;
-      }
-    } else if (instrument == "guitar") {
-      p5l.socket.emit("instrumentInfo", "Guitarist");
+  const radioButtons = document.querySelectorAll('input[type="radio"');
+  for (let i = 0; i < radioButtons.length; i++) {
+    radioButtons[i].addEventListener("click", () => {
+      instrument = document.querySelector(
+        'input[name="instrument"]:checked'
+      ).value;
+      console.log(
+        document.querySelector('input[name="instrument"]:checked').value
+      );
+      if (instrument == "piano") {
+        p5l.socket.emit("instrumentInfo", "Pianist");
+        if (pianistCamClient) {
+          videoStreams[0] = pianistCamClient;
+        } else {
+          pianistCamClient = new PianistCam(myVideo, clientId);
+          videoStreams[0] = pianistCamClient;
+        }
+      } else if (instrument == "guitar") {
+        p5l.socket.emit("instrumentInfo", "Guitarist");
 
-      if (guitaristCamClient) {
-        videoStreams[0] = guitaristCamClient;
-      } else {
-        guitaristCamClient = new GuitaristCam(myVideo, clientId);
-        videoStreams[0] = guitaristCamClient;
-      }
-    } else if (instrument == "drums") {
-      p5l.socket.emit("instrumentInfo", "Drummer");
+        if (guitaristCamClient) {
+          videoStreams[0] = guitaristCamClient;
+        } else {
+          guitaristCamClient = new GuitaristCam(myVideo, clientId);
+          videoStreams[0] = guitaristCamClient;
+        }
+      } else if (instrument == "drums") {
+        p5l.socket.emit("instrumentInfo", "Drummer");
 
-      if (drummerCamClient) {
-        videoStreams[0] = drummerCamClient;
-      } else {
-        drummerCamClient = new DrummerCam(myVideo, clientId);
-        videoStreams[0] = drummerCamClient;
-      }
-    } else if (instrument == "bass") {
-      p5l.socket.emit("instrumentInfo", "Bassist");
+        if (drummerCamClient) {
+          videoStreams[0] = drummerCamClient;
+        } else {
+          drummerCamClient = new DrummerCam(myVideo, clientId);
+          videoStreams[0] = drummerCamClient;
+        }
+      } else if (instrument == "bass") {
+        p5l.socket.emit("instrumentInfo", "Bassist");
 
-      if (bassistCamClient) {
-        videoStreams[0] = bassistCamClient;
-      } else {
-        bassistCamClient = new BassistCam(myVideo, clientId);
-        videoStreams[0] = bassistCamClient;
+        if (bassistCamClient) {
+          videoStreams[0] = bassistCamClient;
+        } else {
+          bassistCamClient = new BassistCam(myVideo, clientId);
+          videoStreams[0] = bassistCamClient;
+        }
       }
-    }
-    videoStreams[0].p5l = p5l;
-  });
+      videoStreams[0].p5l = p5l;
+    });
+  }
 });
 
 roomCode = window.location.pathname;

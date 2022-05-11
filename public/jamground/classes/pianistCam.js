@@ -30,7 +30,8 @@ class PianistCam extends Cam {
     if (this.predictions.length != 0) {
       this.drawKeypoints();
       //   print(frameCount - this.playFrame);
-      if (frameCount - this.playFrame >= 45) {
+      if (millis() - this.playFrame >= 1000) {
+        // print(frameRate());
         this.playNote();
       }
     }
@@ -45,7 +46,7 @@ class PianistCam extends Cam {
         noStroke();
         ellipse(keypoint[0], keypoint[1], 10, 10);
         fill("white");
-        text(j, keypoint[0], keypoint[1]);
+        // text(j, keypoint[0], keypoint[1]);
       }
     }
   }
@@ -95,7 +96,7 @@ class PianistCam extends Cam {
       this.p5l.send(JSON.stringify("piano5"));
     }
     if (notePlayed) {
-      this.playFrame = frameCount;
+      this.playFrame = millis();
     }
   }
 }

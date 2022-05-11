@@ -6,7 +6,7 @@ class GuitaristCam extends Cam {
     // this.video.size(this.height, this.width);
     this.speed = 1;
     this.oldPlayFrame = 0;
-    this.newPlayFrame = 31;
+    this.newPlayFrame = 1000;
 
     this.handpose = ml5.handpose(this.video, () => {
       print("model ready");
@@ -42,7 +42,7 @@ class GuitaristCam extends Cam {
     image(this.video, x, y);
 
     if (this.pose) {
-      if (this.pose.rightWrist.confidence > 0.7) {
+      if (this.pose.rightWrist.confidence > 0.1) {
         this.oldrightWrist.x = this.newrightWrist.x;
         this.oldrightWrist.y = this.newrightWrist.y;
 
@@ -53,8 +53,8 @@ class GuitaristCam extends Cam {
         // console.log(this.newrightWrist.y - this.oldrightWrist.y);
         if (this.newrightWrist.y - this.oldrightWrist.y > 5) {
           this.oldPlayFrame = this.newPlayFrame;
-          this.newPlayFrame = frameCount;
-          if (this.newPlayFrame - this.oldPlayFrame > 15) {
+          this.newPlayFrame = millis();
+          if (this.newPlayFrame - this.oldPlayFrame > 1000) {
             console.log("hit");
 
             strum = true;
@@ -80,7 +80,7 @@ class GuitaristCam extends Cam {
         noStroke();
         ellipse(keypoint[0], keypoint[1], 10, 10);
         fill("white");
-        text(j, keypoint[0], keypoint[1]);
+        // text(j, keypoint[0], keypoint[1]);
       }
     }
   }
