@@ -1,10 +1,10 @@
-class DrummerCam extends Cam {
+class BassistCam extends Cam {
   constructor(video) {
     super(video);
     this.height = height;
     this.width = (width * 2) / 3;
     // this.video.size(this.height, this.width);
-    this.speed = 1;
+
     this.poseNet = ml5.poseNet(video, () => {
       console.log("model ready");
     });
@@ -47,8 +47,8 @@ class DrummerCam extends Cam {
         ellipse(this.newLWrist.x, this.newLWrist.y, 10, 10);
 
         // console.log(this.newLWrist.y - this.oldLWrist.y);
-        if (this.newLWrist.y - this.oldLWrist.y > 100) {
-          this.playSound(this.newLWrist.x);
+        if (this.oldLWrist.x - this.newLWrist.x > 100) {
+          this.playSound(this.newLWrist.y);
         }
       }
       if (this.pose.rightWrist.confidence > 0.1) {
@@ -60,9 +60,9 @@ class DrummerCam extends Cam {
         this.newRWrist.y = this.pose.rightWrist.y;
         // console.log(abs(this.newLWrist.y - this.oldLWrist.y));
         ellipse(this.newRWrist.x, this.newRWrist.y, 10, 10);
-        // console.log(this.newLWrist.y - this.oldLWrist.y);
-        if (this.newRWrist.y - this.oldRWrist.y > 100) {
-          this.playSound(this.newRWrist.x);
+
+        if (this.newRWrist.x - this.oldRWrist.x > 100) {
+          this.playSound(this.newRWrist.y);
         }
       }
     }
@@ -70,26 +70,31 @@ class DrummerCam extends Cam {
     pop();
   }
 
-  playSound(xValue) {
-    if (xValue < (this.video.width / 4) * 1) {
-      print("hihat");
-      hihat.play();
-      this.p5l.send(JSON.stringify("hihat"));
-    } else if (xValue < (this.video.width / 4) * 2) {
-      print("snare");
+  playSound(yValue) {
+    if (yValue < (this.video.height / 5) * 1) {
+      print("bass1");
+      bass1.play();
+      this.p5l.send(JSON.stringify("bass1"));
+    } else if (yValue < (this.video.height / 5) * 2) {
+      print("bass2");
 
-      snare.play();
-      this.p5l.send(JSON.stringify("snare"));
-    } else if (xValue < (this.video.width / 4) * 3) {
-      print("kick");
+      bass2.play();
+      this.p5l.send(JSON.stringify("bass2"));
+    } else if (yValue < (this.video.height / 5) * 3) {
+      print("bass3");
 
-      kick.play();
-      this.p5l.send(JSON.stringify("kick"));
-    } else if (xValue < (this.video.width / 4) * 4) {
-      print("crash");
+      bass3.play();
+      this.p5l.send(JSON.stringify("bass3"));
+    } else if (yValue < (this.video.height / 5) * 4) {
+      print("bass4");
 
-      crash.play();
-      this.p5l.send(JSON.stringify("crash"));
+      bass4.play();
+      this.p5l.send(JSON.stringify("bass4"));
+    } else if (yValue < (this.video.height / 5) * 5) {
+      print("bass5");
+
+      bass5.play();
+      this.p5l.send(JSON.stringify("bass5"));
     }
   }
 }

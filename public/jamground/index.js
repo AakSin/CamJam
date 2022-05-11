@@ -5,9 +5,12 @@ let p5l;
 let clientId;
 // let instrumentList;
 let drumLabels = ["crash", "kick", "snare", "hihat"];
+let bassLabels = ["D", "E", "A", "F", "G"];
+
 let pianistCamClient;
 let drummerCamClient;
 let guitaristCamClient;
+let bassistCamClient;
 
 // Open this sketch up 2 times to send video back and forth
 window.addEventListener("load", () => {
@@ -16,6 +19,9 @@ window.addEventListener("load", () => {
     instrument = document.querySelector(
       'input[name="instrument"]:checked'
     ).value;
+    console.log(
+      document.querySelector('input[name="instrument"]:checked').value
+    );
     if (instrument == "piano") {
       p5l.socket.emit("instrumentInfo", "Pianist");
       if (pianistCamClient) {
@@ -42,6 +48,15 @@ window.addEventListener("load", () => {
         drummerCamClient = new DrummerCam(myVideo, clientId);
         videoStreams[0] = drummerCamClient;
       }
+    } else if (instrument == "bass") {
+      p5l.socket.emit("instrumentInfo", "Bassist");
+
+      if (bassistCamClient) {
+        videoStreams[0] = bassistCamClient;
+      } else {
+        bassistCamClient = new BassistCam(myVideo, clientId);
+        videoStreams[0] = bassistCamClient;
+      }
     }
     videoStreams[0].p5l = p5l;
   });
@@ -60,17 +75,24 @@ function preload() {
   snare = loadSound("assets/snare.wav");
   hihat = loadSound("assets/hihat.wav");
 
-  c4 = loadSound("assets/c4.mp3");
-  e4 = loadSound("assets/e4.mp3");
-  g4 = loadSound("assets/g4.mp3");
-  b5 = loadSound("assets/b5.mp3");
-  d5 = loadSound("assets/d5.mp3");
+  piano1 = loadSound("assets/piano1.wav");
+  piano2 = loadSound("assets/piano2.wav");
+  piano3 = loadSound("assets/piano3.wav");
+  piano4 = loadSound("assets/piano4.wav");
+  piano5 = loadSound("assets/piano5.wav");
 
   guitar1 = loadSound("assets/guitar1.m4a");
   guitar2 = loadSound("assets/guitar2.m4a");
   guitar3 = loadSound("assets/guitar3.m4a");
   guitar4 = loadSound("assets/guitar4.m4a");
   guitar5 = loadSound("assets/guitar5.m4a");
+
+  bass1 = loadSound("assets/bass1.wav");
+  bass2 = loadSound("assets/bass2.wav");
+  bass3 = loadSound("assets/bass3.wav");
+  bass4 = loadSound("assets/bass4.wav");
+  bass5 = loadSound("assets/bass5.wav");
+
   font = loadFont("assets/raleway.ttf");
 }
 
@@ -183,6 +205,25 @@ function draw() {
       fill("white");
       text(drumLabels[i], (i * rectWidth) / 4 + rectWidth / 10, rectHeight / 2);
     }
+  } else if (getInstrumentName(videoStreams[0]) == "Bassist") {
+    let rectHeight =
+      videoStreams[0].video.height * videoStreams[0].heightMultiplier;
+    let rectWidth =
+      videoStreams[0].video.width * videoStreams[0].widthMultiplier;
+
+    for (let i = 0; i < 5; i++) {
+      stroke("white");
+      fill(i * 50, 100, 100, 100);
+
+      rect(0, (i * rectHeight) / 5, rectWidth, rectHeight / 5);
+      noStroke();
+      fill("white");
+      text(
+        bassLabels[i],
+        rectWidth / 2,
+        (i * rectHeight) / 5 + rectHeight / 10 + 10
+      );
+    }
   }
   // videoStreams[0].move();
 }
@@ -206,33 +247,70 @@ function gotData(data, id) {
 
   // If it is JSON, parse it
   let d = JSON.parse(data);
-  print(d);
-  if (d == "piano1") {
-    c4.play();
-  }
-  if (d == "piano2") {
-    e4.play();
-  }
-  if (d == "piano3") {
-    g4.play();
-  }
-  if (d == "piano4") {
-    b5.play();
-  }
-  if (d == "piano5") {
-    d5.play();
-  }
-  if (d == "kick") {
-    kick.play();
-  }
-  if (d == "crash") {
-    crash.play();
-  }
-  if (d == "hihat") {
-    hihat.play();
-  }
-  if (d == "snare") {
-    snare.play();
+  switch (d) {
+    case "piano1":
+      piano1.play();
+      break;
+    case "piano2":
+      piano2.play();
+
+      break;
+    case "piano3":
+      piano3.play();
+
+      break;
+    case "piano4":
+      piano4.play();
+
+      break;
+    case "piano5":
+      piano5.play();
+
+      break;
+    case "guitar1":
+      guitar1.play();
+      break;
+    case "guitar2":
+      guitar2.play();
+      break;
+    case "guitar3":
+      guitar3.play();
+
+      break;
+    case "guitar4":
+      guitar4.play();
+
+      break;
+    case "guitar5":
+      guitar5.play();
+      break;
+    case "bass1":
+      bass1.play();
+      break;
+    case "bass2":
+      bass2.play();
+      break;
+    case "bass3":
+      bass3.play();
+      break;
+    case "bass4":
+      bass4.play();
+      break;
+    case "bass5":
+      bass5.play();
+      break;
+    case "snare":
+      snare.play();
+      break;
+    case "hihat":
+      hihat.play();
+      break;
+    case "kick":
+      kick.play();
+      break;
+    case "crash":
+      crash.play();
+      break;
   }
 }
 function gotDisconnect(id) {
@@ -254,5 +332,7 @@ function getInstrumentName(instrumentVar) {
     return "Pianist";
   } else if (instrumentVar instanceof GuitaristCam) {
     return "Guitarist";
+  } else if (instrumentVar instanceof BassistCam) {
+    return "Bassist";
   }
 }

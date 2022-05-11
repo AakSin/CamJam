@@ -26,8 +26,8 @@ class GuitaristCam extends Cam {
         this.pose = poses[0].pose;
       }
     });
-    this.oldNose = { x: 0, y: 0 };
-    this.newNose = { x: 0, y: 0 };
+    this.oldrightWrist = { x: 0, y: 0 };
+    this.newrightWrist = { x: 0, y: 0 };
   }
   draw(x, y) {
     let strum = false;
@@ -42,16 +42,16 @@ class GuitaristCam extends Cam {
     image(this.video, x, y);
 
     if (this.pose) {
-      if (this.pose.nose.confidence > 0.7) {
-        this.oldNose.x = this.newNose.x;
-        this.oldNose.y = this.newNose.y;
+      if (this.pose.rightWrist.confidence > 0.7) {
+        this.oldrightWrist.x = this.newrightWrist.x;
+        this.oldrightWrist.y = this.newrightWrist.y;
 
-        this.newNose.x = this.pose.nose.x;
-        this.newNose.y = this.pose.nose.y;
+        this.newrightWrist.x = this.pose.rightWrist.x;
+        this.newrightWrist.y = this.pose.rightWrist.y;
 
-        ellipse(this.newNose.x, this.newNose.y, 10, 10);
-        // console.log(this.newNose.y - this.oldNose.y);
-        if (this.newNose.y - this.oldNose.y > 5) {
+        ellipse(this.newrightWrist.x, this.newrightWrist.y, 10, 10);
+        // console.log(this.newrightWrist.y - this.oldrightWrist.y);
+        if (this.newrightWrist.y - this.oldrightWrist.y > 5) {
           this.oldPlayFrame = this.newPlayFrame;
           this.newPlayFrame = frameCount;
           if (this.newPlayFrame - this.oldPlayFrame > 15) {
@@ -88,29 +88,38 @@ class GuitaristCam extends Cam {
     if (
       this.predictions[0].landmarks[8][1] > this.predictions[0].landmarks[6][1]
     ) {
+      print("guitar1");
       guitar1.play();
     }
     if (
       this.predictions[0].landmarks[12][1] >
       this.predictions[0].landmarks[10][1]
     ) {
+      print("guitar2");
+
       guitar2.play();
     }
     if (
       this.predictions[0].landmarks[16][1] >
       this.predictions[0].landmarks[14][1]
     ) {
+      print("guitar3");
+
       guitar3.play();
     }
     if (
       this.predictions[0].landmarks[20][1] >
       this.predictions[0].landmarks[18][1]
     ) {
+      print("guitar4");
+
       guitar4.play();
     }
     if (
-      this.predictions[0].landmarks[4][0] < this.predictions[0].landmarks[2][0]
+      this.predictions[0].landmarks[4][0] > this.predictions[0].landmarks[2][0]
     ) {
+      print("guitar5");
+
       guitar5.play();
     }
   }

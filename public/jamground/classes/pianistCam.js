@@ -30,7 +30,7 @@ class PianistCam extends Cam {
     if (this.predictions.length != 0) {
       this.drawKeypoints();
       //   print(frameCount - this.playFrame);
-      if (frameCount - this.playFrame >= 30) {
+      if (frameCount - this.playFrame >= 45) {
         this.playNote();
       }
     }
@@ -55,7 +55,7 @@ class PianistCam extends Cam {
       this.predictions[0].landmarks[8][1] > this.predictions[0].landmarks[6][1]
     ) {
       notePlayed = true;
-      c4.play();
+      piano1.play();
       // Send it
       this.p5l.send(JSON.stringify("piano1"));
     }
@@ -65,7 +65,7 @@ class PianistCam extends Cam {
     ) {
       notePlayed = true;
 
-      e4.play();
+      piano2.play();
       this.p5l.send(JSON.stringify("piano2"));
     }
     if (
@@ -74,7 +74,7 @@ class PianistCam extends Cam {
     ) {
       notePlayed = true;
 
-      g4.play();
+      piano3.play();
       this.p5l.send(JSON.stringify("piano3"));
     }
     if (
@@ -83,7 +83,7 @@ class PianistCam extends Cam {
     ) {
       notePlayed = true;
 
-      b5.play();
+      piano4.play();
       this.p5l.send(JSON.stringify("piano4"));
     }
     if (
@@ -91,7 +91,7 @@ class PianistCam extends Cam {
     ) {
       notePlayed = true;
 
-      d5.play();
+      piano5.play();
       this.p5l.send(JSON.stringify("piano5"));
     }
     if (notePlayed) {
