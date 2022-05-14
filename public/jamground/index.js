@@ -1,9 +1,10 @@
-// This is a test of the p5LiveMedia webrtc library and associated service.
+
 let font;
 let myVideo;
 let p5l;
 let clientId;
-// let instrumentList;
+
+// labels that will be written over the various screen sections of drum or bass
 let drumLabels = ["crash", "kick", "snare", "hihat"];
 let bassLabels = ["D", "E", "A", "F", "G"];
 
@@ -12,7 +13,7 @@ let drummerCamClient;
 let guitaristCamClient;
 let bassistCamClient;
 
-// Open this sketch up 2 times to send video back and forth
+
 window.addEventListener("load", () => {
   const radioButtons = document.querySelectorAll('input[type="radio"');
   const helpText = document.querySelector("#help")
@@ -27,6 +28,8 @@ window.addEventListener("load", () => {
       if (instrument == "piano") {
         helpText.innerHTML= "Piano Instructions: Bring your right hand up. Bend one finger down to play one note. You can bend multiple fingers down to play chords."
         p5l.socket.emit("instrumentInfo", "Pianist");
+//       these conditionals basically check if the object for that instrument already exists or not, if it does assign it, if it doesn't then make a new one
+        
         if (pianistCamClient) {
           videoStreams[0] = pianistCamClient;
         } else {
@@ -71,12 +74,17 @@ window.addEventListener("load", () => {
   }
 });
 
+// access room code from url which will be passed down to p5 live media
 roomCode = window.location.pathname;
 roomCode = roomCode.substring(1, roomCode.length - 1);
-//listen for confirmation
+
+
 let p5lset = false;
 let videoStreams = [];
-let crash, hihat, snare, kick;
+
+// initiliaze them here so they can be used outside of pre load as well
+let font;
+let crash, hihat, snare, kick, piano1, piano2, piano3, piano4, piano5, guitar1, guitar2, guitar3, guitar4, guitar5, bass1, bass2, bass3, bass4, bass5;
 
 function preload() {
   crash = loadSound("assets/crash.wav");
@@ -116,17 +124,7 @@ function setup() {
   guitar4.setVolume(2)
   guitar5.setVolume(2)
   createCanvas(window.innerWidth, 0.9 * window.innerHeight);
-  // pixelDensity(1);
 
-  // let constraints = {
-  //   video: {
-  //     mandatory: {
-  //       minWidth: (width * 2) / 3,
-  //       minHeight: height,
-  //     },
-  //   },
-  //   audio: false,
-  // };
   myVideo = createCapture(VIDEO, function (stream) {
     print(window.location.hostname);
     p5l = new p5LiveMedia(
@@ -140,11 +138,12 @@ function setup() {
     p5l.on("stream", gotStream);
     p5l.on("data", gotData);
     p5l.on("disconnect", gotDisconnect);
+//     on redirect event take the client to the roomFull page
     p5l.socket.on("redirect",()=>{
       window.location.href="roomFull"
     })
     p5l.socket.on("instrumentList", (data) => {
-      // print(data);
+      // keep updating instrument list upon receiving this event
       instrumentList = data;
       print(instrumentList);
 
@@ -160,9 +159,7 @@ function setup() {
     });
   });
 
-  // p5l.socket.on("invalidRoom", () => {
-  //   console.log("invalid room");
-  // });
+ 
   myVideo.muted = true;
   myVideo.hide();
   // myVideo.size((window.innerWidth * 2) / 3, window.innerHeight);
@@ -193,6 +190,7 @@ function draw() {
     );
     fill("white");
     textSize(20);
+//     write the name of instrument a person is playing
     text(
       videoStreams[i].instrumentName,
       (width * 2) / 3,
@@ -256,6 +254,7 @@ function gotStream(stream, id) {
   // This is just like a video/stream from createCapture(VIDEO)
   stream.hide();
   videoStreams.push(new Cam(stream, id));
+//   upon getting a new client check it's instrument from instruemntList
   for (let i = 1; i < videoStreams.length; i++) {
     for (socketId in instrumentList) {
       // print(socketId);
@@ -337,6 +336,7 @@ function gotData(data, id) {
   }
 }
 function gotDisconnect(id) {
+//   remove person from displaying list when they disconnect
   for (let i = 1; i < videoStreams.length; i++) {
     if (videoStreams[i].socketId == id) {
       videoStreams.splice(i, 1);
@@ -348,6 +348,7 @@ function gotDisconnect(id) {
 function gotInstrumentList(data) {
   console.log(data);
 }
+// helper function to basically get the instrument name from the class name
 function getInstrumentName(instrumentVar) {
   if (instrumentVar instanceof DrummerCam) {
     return "Drummer";
