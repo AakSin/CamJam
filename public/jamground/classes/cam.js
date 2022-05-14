@@ -14,6 +14,7 @@ class Cam {
     this.speed = random(2, 3);
   }
   draw(x, y) {
+
     image(this.video, x, y, this.width, this.height);
   }
   //   move() {

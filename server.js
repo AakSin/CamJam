@@ -19,7 +19,12 @@ const maxPlayers = 4;
 
 // Tell Express to look in the "public" folder for any files first
 app.use("/", express.static("public"));
+
+
 app.use("/:roomName", express.static("public/jamground"));
+app.use("/:roomName/roomFull", (req,res)=>{
+  res.send("This room is at it's full 4 player capacity")
+});
 
 // If the user just goes to the "route" / then run this function
 // app.get("/", function (req, res) {
@@ -29,19 +34,18 @@ app.use("/:roomName", express.static("public/jamground"));
 
 // Here is the actual HTTP server
 // In this case, HTTPS (secure) server
-let https = require("https");
+let http= require("http");
 
-// Security options - key and certificate
-let options = {
-  key: fs.readFileSync("local.key"),
-  cert: fs.readFileSync("local.cert"),
-};
+
 
 // We pass in the Express object and the options object
-let httpServer = https.createServer(options, app);
+let httpServer = http.createServer(app);
 
+let port = process.env.PORT || 3000;
 // Default HTTPS port
-httpServer.listen(443);
+httpServer.listen(port, ()=>{
+  // console.log('Server listening on port ', port);
+});
 
 // WebSocket Portion
 // WebSockets work with the HTTP server
@@ -63,27 +67,32 @@ let rooms = {};
 // Register a callback function to run when we have an individual connection
 // This is run for each individual user that connects
 io.sockets.on("connection", (socket) => {
-  console.log("We have a new client", socket.id);
+  // console.log("We have a new client", socket.id);
 
   socket.on("room_connect", function (room) {
-    console.log(Date.now(), socket.id, room, "room_connect");
+    // // console.log(Date.now(), socket.id, room, "room_connect");
 
     if (!rooms.hasOwnProperty(room)) {
-      console.log(Date.now(), socket.id, "room doesn't exist, creating it");
+      // console.log(Date.now(), socket.id, "room doesn't exist, creating it");
       rooms[room] = [];
     }
-
+    console.log(rooms[room].length)
+  if(rooms[room].length<4){
     rooms[room].push(socket);
     socket.room = room;
 
-    console.log(Date.now(), socket.id, rooms);
+    // console.log(Date.now(), socket.id, rooms);
 
     let ids = [];
     for (let i = 0; i < rooms[socket.room].length; i++) {
       ids.push(rooms[socket.room][i].id);
     }
-    console.log(Date.now(), socket.id, "ids length: " + ids.length);
+  
+    // console.log(Date.now(), socket.id, "ids length: " + ids.length);
     socket.emit("listresults", ids);
+    }else{
+      io.to(socket.id).emit("redirect");
+    }
   });
 
   socket.on("list", function () {
@@ -91,7 +100,7 @@ io.sockets.on("connection", (socket) => {
     for (let i = 0; i < rooms[socket.room].length; i++) {
       ids.push(rooms[socket.room][i].id);
     }
-    console.log(Date.now(), socket.id, "ids length: " + ids.length);
+    // console.log(Date.now(), socket.id, "ids length: " + ids.length);
     socket.emit("listresults", ids);
   });
 
@@ -130,7 +139,7 @@ io.sockets.on("connection", (socket) => {
     io.sockets.emit("instrumentList", instrumentTracker);
   });
   socket.on("disconnect", function () {
-    console.log(Date.now(), socket.id, "Client has disconnected");
+    // console.log(Date.now(), socket.id, "Client has disconnected");
     if (rooms[socket.room]) {
       // Check on this
       // Tell everyone first

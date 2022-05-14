@@ -15,6 +15,7 @@ let bassistCamClient;
 // Open this sketch up 2 times to send video back and forth
 window.addEventListener("load", () => {
   const radioButtons = document.querySelectorAll('input[type="radio"');
+  const helpText = document.querySelector("#help")
   for (let i = 0; i < radioButtons.length; i++) {
     radioButtons[i].addEventListener("click", () => {
       instrument = document.querySelector(
@@ -24,6 +25,7 @@ window.addEventListener("load", () => {
         document.querySelector('input[name="instrument"]:checked').value
       );
       if (instrument == "piano") {
+        helpText.innerHTML= "Piano Instructions: Bring your right hand up. Bend one finger down to play one note. You can bend multiple fingers down to play chords."
         p5l.socket.emit("instrumentInfo", "Pianist");
         if (pianistCamClient) {
           videoStreams[0] = pianistCamClient;
@@ -32,6 +34,8 @@ window.addEventListener("load", () => {
           videoStreams[0] = pianistCamClient;
         }
       } else if (instrument == "guitar") {
+        helpText.innerHTML= "Guitar Instructions: Bring your left hand up. Bend one finger down to hold that chord. Now bring your right hand up and move it down to strum."
+        
         p5l.socket.emit("instrumentInfo", "Guitarist");
 
         if (guitaristCamClient) {
@@ -41,6 +45,8 @@ window.addEventListener("load", () => {
           videoStreams[0] = guitaristCamClient;
         }
       } else if (instrument == "drums") {
+        helpText.innerHTML= "Drums Instructions: Bend camera down to focus on your waist. You can play drum with both hands! Bring your hands down from high up to play the drum sound on that part of the screen."
+        
         p5l.socket.emit("instrumentInfo", "Drummer");
 
         if (drummerCamClient) {
@@ -51,7 +57,8 @@ window.addEventListener("load", () => {
         }
       } else if (instrument == "bass") {
         p5l.socket.emit("instrumentInfo", "Bassist");
-
+        helpText.innerHTML= "Bass Instructions: Bend camera down to focus on your waist. You can play bass with both hands! Slap in a highlighted region to play a note."
+        
         if (bassistCamClient) {
           videoStreams[0] = bassistCamClient;
         } else {
@@ -89,6 +96,8 @@ function preload() {
   guitar4 = loadSound("assets/guitar4.m4a");
   guitar5 = loadSound("assets/guitar5.m4a");
 
+  
+  
   bass1 = loadSound("assets/bass1.wav");
   bass2 = loadSound("assets/bass2.wav");
   bass3 = loadSound("assets/bass3.wav");
@@ -99,7 +108,14 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(window.innerWidth, 0.95 * window.innerHeight);
+  textFont(font);
+  
+  guitar1.setVolume(2)
+  guitar2.setVolume(2)
+  guitar3.setVolume(2)
+  guitar4.setVolume(2)
+  guitar5.setVolume(2)
+  createCanvas(window.innerWidth, 0.9 * window.innerHeight);
   // pixelDensity(1);
 
   // let constraints = {
@@ -124,6 +140,9 @@ function setup() {
     p5l.on("stream", gotStream);
     p5l.on("data", gotData);
     p5l.on("disconnect", gotDisconnect);
+    p5l.socket.on("redirect",()=>{
+      window.location.href="roomFull"
+    })
     p5l.socket.on("instrumentList", (data) => {
       // print(data);
       instrumentList = data;
@@ -163,9 +182,9 @@ function draw() {
   // print(videoStreams);
   for (let i = 1; i < videoStreams.length; i++) {
     videoStreams[i].draw((width * 2) / 3, ((i - 1) * height) / 3);
-    textFont(font);
     let textBox = font.textBounds(videoStreams[i].instrumentName, 0, 0, 20);
-    fill("black");
+    
+    fill("#494949");
     rect(
       (width * 2) / 3,
       ((i - 1) * height) / 3 + videoStreams[i].height - textBox.h - 10,
@@ -205,7 +224,8 @@ function draw() {
       rect((i * rectWidth) / 4, 0, rectWidth / 4, rectHeight);
       noStroke();
       fill("white");
-      text(drumLabels[i], (i * rectWidth) / 4 + rectWidth / 10, rectHeight / 2);
+      textSize(30);
+      text(drumLabels[i], (i * rectWidth) / 4 + rectWidth / 10 - 10 , rectHeight / 2 + 10);
     }
   } else if (getInstrumentName(videoStreams[0]) == "Bassist") {
     let rectHeight =
@@ -220,10 +240,11 @@ function draw() {
       rect(0, (i * rectHeight) / 5, rectWidth, rectHeight / 5);
       noStroke();
       fill("white");
+       textSize(30);
       text(
         bassLabels[i],
         rectWidth / 2,
-        (i * rectHeight) / 5 + rectHeight / 10 + 10
+        (i * rectHeight) / 5 + rectHeight / 10 + 15
       );
     }
   }

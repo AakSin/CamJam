@@ -1,6 +1,8 @@
 class DrummerCam extends Cam {
-  constructor(video) {
+  constructor(video,p5l) {
     super(video);
+    this.p5l = p5l;
+    
     this.height = height;
     this.width = (width * 2) / 3;
     // this.video.size(this.height, this.width);
@@ -61,7 +63,7 @@ class DrummerCam extends Cam {
         // console.log(abs(this.newLWrist.y - this.oldLWrist.y));
         ellipse(this.newRWrist.x, this.newRWrist.y, 10, 10);
         // console.log(this.newLWrist.y - this.oldLWrist.y);
-        if (this.newRWrist.y - this.oldRWrist.y > 100) {
+        if (this.newRWrist.y - this.oldRWrist.y > 75) {
           this.playSound(this.newRWrist.x);
         }
       }

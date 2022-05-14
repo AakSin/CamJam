@@ -1,6 +1,8 @@
 class GuitaristCam extends Cam {
-  constructor(video) {
+  constructor(video,p5l) {
     super(video);
+    this.p5l = p5l;
+    
     this.height = height;
     this.width = (width * 2) / 3;
     // this.video.size(this.height, this.width);
@@ -90,6 +92,8 @@ class GuitaristCam extends Cam {
     ) {
       print("guitar1");
       guitar1.play();
+      this.p5l.send(JSON.stringify("guitar1"));
+      
     }
     if (
       this.predictions[0].landmarks[12][1] >
@@ -98,6 +102,7 @@ class GuitaristCam extends Cam {
       print("guitar2");
 
       guitar2.play();
+          this.p5l.send(JSON.stringify("guitar2"));
     }
     if (
       this.predictions[0].landmarks[16][1] >
@@ -106,6 +111,8 @@ class GuitaristCam extends Cam {
       print("guitar3");
 
       guitar3.play();
+          this.p5l.send(JSON.stringify("guitar3"));
+      
     }
     if (
       this.predictions[0].landmarks[20][1] >
@@ -114,6 +121,8 @@ class GuitaristCam extends Cam {
       print("guitar4");
 
       guitar4.play();
+          this.p5l.send(JSON.stringify("guitar4"));
+      
     }
     if (
       this.predictions[0].landmarks[4][0] > this.predictions[0].landmarks[2][0]
@@ -121,6 +130,8 @@ class GuitaristCam extends Cam {
       print("guitar5");
 
       guitar5.play();
+          this.p5l.send(JSON.stringify("guitar5"));
+      
     }
   }
 }

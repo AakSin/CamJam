@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@100;400;700&display=swap');
+body,html{
+  margin:0;
+  padding:0;
+}
+body{
+/*   background-image:url("https://cdn.glitch.global/113b763a-f505-42a4-817c-5154e1574148/P394WHXs_4x.jpeg?v=1652302437716"); */
+    background-repeat: no-repeat;
+  background-size:90%;
+  background-position:center center;
+  font-family:"Raleway","sans-serif";
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  color:#494949
+}
+h1,h2{
+  margin:0px;
+}
+h1{
+  font-size:128px;
+}
+h2{
+  font-size:40px;
+  font-weight:400;
+  margin-bottom:40px;
+}
+p{
+  font-size:20px;
+}
+
+input[type="text"]{
+  /*    reset*/
+  background: none;
+	color: inherit;
+	
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+/*    */
+  background-color:rgba(0,0,0,0);
+  border:0.5px solid #494949;
+  padding:10px;
+  font-weight:100;
+  font-size:16px;
+  border-radius:10px;
+  text-align:center;
+  color:#494949;
+  letter-spacing:1px;
+  margin-bottom:20px;
+    
+}
+input[type="text"]:placeholder{
+
+  font-weight:100;
+  font-size:16px;
+    
+}
+
+button{
+/*    reset*/
+  background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+/*    */
+  
+  background-color:#494949;
+  border-radius:10px;
+  border:0;
+  outline:0;
+  padding:15px 30px;
+  color:white;
+  font-size:20px;
+  font-weight:100;
+}

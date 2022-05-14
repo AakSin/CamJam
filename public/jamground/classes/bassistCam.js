@@ -1,6 +1,8 @@
 class BassistCam extends Cam {
-  constructor(video) {
+  constructor(video,p5l) {
     super(video);
+    this.p5l = p5l;
+    
     this.height = height;
     this.width = (width * 2) / 3;
     // this.video.size(this.height, this.width);
